@@ -48,7 +48,7 @@ static void packet_process_ack(void) {
 		printf("  packet is %zd bytes, not %lu, ignoring\n", client_sock_received_packet.received_bytes, sizeof(srf_ip_conn_packet_header_t)+sizeof(srf_ip_conn_ack_payload_t));
 		return;
 	}
-	if (!srf_ip_conn_packet_hmac_check(client_token, CONFIG_PASSWORD, packet, sizeof(srf_ip_conn_ack_payload_t))) {
+	if (!srf_ip_conn_packet_hmac_check(client_token, client_password, packet, sizeof(srf_ip_conn_ack_payload_t))) {
 		printf("  invalid hmac, ignoring ack packet\n");
 		return;
 	}
@@ -63,7 +63,7 @@ static void packet_process_nak(void) {
 		printf("  packet is %zd bytes, not %lu, ignoring\n", client_sock_received_packet.received_bytes, sizeof(srf_ip_conn_packet_header_t)+sizeof(srf_ip_conn_nak_payload_t));
 		return;
 	}
-	if (!srf_ip_conn_packet_hmac_check(client_token, CONFIG_PASSWORD, packet, sizeof(srf_ip_conn_nak_payload_t))) {
+	if (!srf_ip_conn_packet_hmac_check(client_token, client_password, packet, sizeof(srf_ip_conn_nak_payload_t))) {
 		printf("  invalid hmac, ignoring nak packet\n");
 		return;
 	}
@@ -78,7 +78,7 @@ static void packet_process_pong(void) {
 		printf("  packet is %zd bytes, not %lu, ignoring\n", client_sock_received_packet.received_bytes, sizeof(srf_ip_conn_packet_header_t)+sizeof(srf_ip_conn_pong_payload_t));
 		return;
 	}
-	if (!srf_ip_conn_packet_hmac_check(client_token, CONFIG_PASSWORD, packet, sizeof(srf_ip_conn_pong_payload_t))) {
+	if (!srf_ip_conn_packet_hmac_check(client_token, client_password, packet, sizeof(srf_ip_conn_pong_payload_t))) {
 		printf("  invalid hmac, ignoring pong packet\n");
 		return;
 	}
@@ -93,7 +93,7 @@ static void packet_process_raw(void) {
 		printf("  packet is %zd bytes, not %lu, ignoring\n", client_sock_received_packet.received_bytes, sizeof(srf_ip_conn_packet_header_t)+sizeof(srf_ip_conn_data_raw_payload_t));
 		return;
 	}
-	if (!srf_ip_conn_packet_hmac_check(client_token, CONFIG_PASSWORD, packet, sizeof(srf_ip_conn_data_raw_payload_t))) {
+	if (!srf_ip_conn_packet_hmac_check(client_token, client_password, packet, sizeof(srf_ip_conn_data_raw_payload_t))) {
 		printf("  invalid hmac, ignoring packet\n");
 		return;
 	}
@@ -109,7 +109,7 @@ static void packet_process_dmr(void) {
 		printf("  packet is %zd bytes, not %lu, ignoring\n", client_sock_received_packet.received_bytes, sizeof(srf_ip_conn_packet_header_t)+sizeof(srf_ip_conn_data_dmr_payload_t));
 		return;
 	}
-	if (!srf_ip_conn_packet_hmac_check(client_token, CONFIG_PASSWORD, packet, sizeof(srf_ip_conn_data_dmr_payload_t))) {
+	if (!srf_ip_conn_packet_hmac_check(client_token, client_password, packet, sizeof(srf_ip_conn_data_dmr_payload_t))) {
 		printf("  invalid hmac, ignoring packet\n");
 		return;
 	}
@@ -125,7 +125,7 @@ static void packet_process_dstar(void) {
 		printf("  packet is %zd bytes, not %lu, ignoring\n", client_sock_received_packet.received_bytes, sizeof(srf_ip_conn_packet_header_t)+sizeof(srf_ip_conn_data_dstar_payload_t));
 		return;
 	}
-	if (!srf_ip_conn_packet_hmac_check(client_token, CONFIG_PASSWORD, packet, sizeof(srf_ip_conn_data_dstar_payload_t))) {
+	if (!srf_ip_conn_packet_hmac_check(client_token, client_password, packet, sizeof(srf_ip_conn_data_dstar_payload_t))) {
 		printf("  invalid hmac, ignoring packet\n");
 		return;
 	}
@@ -141,7 +141,7 @@ static void packet_process_c4fm(void) {
 		printf("  packet is %zd bytes, not %lu, ignoring\n", client_sock_received_packet.received_bytes, sizeof(srf_ip_conn_packet_header_t)+sizeof(srf_ip_conn_data_c4fm_payload_t));
 		return;
 	}
-	if (!srf_ip_conn_packet_hmac_check(client_token, CONFIG_PASSWORD, packet, sizeof(srf_ip_conn_data_c4fm_payload_t))) {
+	if (!srf_ip_conn_packet_hmac_check(client_token, client_password, packet, sizeof(srf_ip_conn_data_c4fm_payload_t))) {
 		printf("  invalid hmac, ignoring packet\n");
 		return;
 	}

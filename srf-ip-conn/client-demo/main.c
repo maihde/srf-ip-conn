@@ -31,6 +31,8 @@ DEALINGS IN THE SOFTWARE.
 #include <stdlib.h>
 #include <signal.h>
 #include <time.h>
+#include <unistd.h>
+#include <string.h>
 
 static volatile flag_t main_exit_needed = 0;
 
@@ -40,19 +42,61 @@ static void main_sigint_handler(int signal) {
 
 int main(int argc, char **argv) {
 	struct sigaction sighandler;
-
+    int c;
+    char* host;
+    uint16_t server_port = DEFAULT_SERVER_PORT;
+    
 	printf("SharkRF IP connector protocol test client application\n");
 
-	if (argc < 3) {
-		printf("usage: %s [host] [client id]\n", argv[0]);
+    while ((c = getopt(argc, argv, "p:P:")) != -1) {
+        switch (c) {
+            case 'p':
+                strncpy(client_password, optarg, SRF_IP_CONN_MAX_PASSWORD_LENGTH);
+                break;
+            case 'P':
+                server_port = atoi(optarg);
+                if (server_port <= 0) {
+                    fprintf (
+                        stderr,
+                        "Invalid port provided.\n"
+                    );
+                }
+                return 1;
+            default:
+                abort();
+        }
+    }
+    
+    if ((argc - optind) < 2) {
+		printf("usage: %s [OPTIONS] [host] [client id]\n", argv[0]);
 		return 1;
 	}
-	client_id = atoi(argv[2]);
-
-	// Seeding the random number generator.
+    
+	host = argv[optind+0];
+    client_id = atoi(argv[optind+1]);
+    
+    // No password was provided, so prompt for one
+    if (strnlen(client_password, SRF_IP_CONN_MAX_PASSWORD_LENGTH) == 0) {
+        // yes, getpass() is deprecated but this is demo software so
+        // we can relax and take it easy
+        strncpy(
+            client_password,
+            getpass("Enter client connector password: "), SRF_IP_CONN_MAX_PASSWORD_LENGTH
+        );
+        
+        if (strnlen(client_password, SRF_IP_CONN_MAX_PASSWORD_LENGTH) == 0) {
+            fprintf (
+                stderr,
+                "Password required.\n"
+            );
+            return 1;
+        }
+    }
+    
+    // Seeding the random number generator.
 	srand(time(NULL));
 
-	if (!client_sock_connect(argv[1], CONFIG_SERVER_PORT, CONFIG_IPV4_ONLY))
+	if (!client_sock_connect(host, server_port, CONFIG_IPV4_ONLY))
 		return 1;
 
 	// Setting up a signal handler to catch a SIGINT (CTRL+C) keypress.

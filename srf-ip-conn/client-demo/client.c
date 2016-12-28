@@ -35,6 +35,7 @@ DEALINGS IN THE SOFTWARE.
 uint32_t client_id;
 client_state_t client_state = CLIENT_STATE_INIT;
 uint8_t client_token[SRF_IP_CONN_TOKEN_LENGTH];
+char client_password[SRF_IP_CONN_MAX_PASSWORD_LENGTH] = "";
 static time_t client_got_last_valid_packet_at = 0;
 static time_t client_last_packet_sent_at = 0;
 
@@ -80,7 +81,7 @@ static void client_send_auth(void) {
 	srf_ip_conn_packet_init(&packet.header, SRF_IP_CONN_PACKET_TYPE_AUTH);
 	for (i = 0; i < sizeof(packet.auth.random_data); i++)
 		packet.auth.random_data[i] = rand();
-	srf_ip_conn_packet_hmac_add(client_token, CONFIG_PASSWORD, &packet, sizeof(srf_ip_conn_auth_payload_t));
+	srf_ip_conn_packet_hmac_add(client_token, client_password, &packet, sizeof(srf_ip_conn_auth_payload_t));
 	client_sock_send((uint8_t *)&packet, sizeof(srf_ip_conn_packet_header_t) + sizeof(srf_ip_conn_auth_payload_t));
 	time(&client_last_packet_sent_at);
 
@@ -126,7 +127,7 @@ static void client_send_config(void) {
 	snprintf(packet.config.location, sizeof(packet.config.location), "test client location");
 	snprintf(packet.config.description, sizeof(packet.config.description), "test client description");
 
-	srf_ip_conn_packet_hmac_add(client_token, CONFIG_PASSWORD, &packet, sizeof(srf_ip_conn_config_payload_t));
+	srf_ip_conn_packet_hmac_add(client_token, client_password, &packet, sizeof(srf_ip_conn_config_payload_t));
 	client_sock_send((uint8_t *)&packet, sizeof(srf_ip_conn_packet_header_t) + sizeof(srf_ip_conn_config_payload_t));
 	time(&client_last_packet_sent_at);
 
@@ -224,7 +225,7 @@ static void client_send_ping(void) {
 	srf_ip_conn_packet_init(&packet.header, SRF_IP_CONN_PACKET_TYPE_PING);
 	for (i = 0; i < sizeof(packet.ping.random_data); i++)
 		packet.ping.random_data[i] = rand();
-	srf_ip_conn_packet_hmac_add(client_token, CONFIG_PASSWORD, &packet, sizeof(srf_ip_conn_ping_payload_t));
+	srf_ip_conn_packet_hmac_add(client_token, client_password, &packet, sizeof(srf_ip_conn_ping_payload_t));
 	client_sock_send((uint8_t *)&packet, sizeof(srf_ip_conn_packet_header_t) + sizeof(srf_ip_conn_ping_payload_t));
 	time(&client_last_packet_sent_at);
 }
@@ -238,7 +239,7 @@ void client_send_close(void) {
 	srf_ip_conn_packet_init(&packet.header, SRF_IP_CONN_PACKET_TYPE_CLOSE);
 	for (i = 0; i < sizeof(packet.close.random_data); i++)
 		packet.close.random_data[i] = rand();
-	srf_ip_conn_packet_hmac_add(client_token, CONFIG_PASSWORD, &packet, sizeof(srf_ip_conn_close_payload_t));
+	srf_ip_conn_packet_hmac_add(client_token, client_password, &packet, sizeof(srf_ip_conn_close_payload_t));
 	client_sock_send((uint8_t *)&packet, sizeof(srf_ip_conn_packet_header_t) + sizeof(srf_ip_conn_close_payload_t));
 	time(&client_last_packet_sent_at);
 }

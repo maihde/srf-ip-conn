@@ -40,7 +40,7 @@ typedef uint8_t client_state_t;
 extern uint32_t client_id;
 extern client_state_t client_state;
 extern uint8_t client_token[SRF_IP_CONN_TOKEN_LENGTH];
-
+extern char client_password[SRF_IP_CONN_MAX_PASSWORD_LENGTH];
 void client_got_valid_packet(void);
 
 void client_got_token(uint8_t token[SRF_IP_CONN_TOKEN_LENGTH]);
