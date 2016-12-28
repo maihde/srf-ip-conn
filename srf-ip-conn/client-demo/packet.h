@@ -32,4 +32,7 @@ DEALINGS IN THE SOFTWARE.
 flag_t packet_is_header_valid(void);
 void packet_process(void);
 
+void write_pcap_hdr(FILE *a_file);
+void write_pcap_pkt(FILE *a_file, uint8_t* data, size_t data_len);
+
 #endif

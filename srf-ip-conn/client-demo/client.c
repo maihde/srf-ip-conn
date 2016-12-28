@@ -36,6 +36,7 @@ uint32_t client_id;
 client_state_t client_state = CLIENT_STATE_INIT;
 uint8_t client_token[SRF_IP_CONN_TOKEN_LENGTH];
 char client_password[SRF_IP_CONN_MAX_PASSWORD_LENGTH] = "";
+FILE *output_file = 0;
 static time_t client_got_last_valid_packet_at = 0;
 static time_t client_last_packet_sent_at = 0;
 

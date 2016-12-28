@@ -29,6 +29,52 @@ DEALINGS IN THE SOFTWARE.
 #include "config.h"
 
 #include <string.h>
+#include <sys/time.h>
+
+typedef struct pcap_hdr_s {
+    uint32_t magic_number;   /* magic number */
+    uint16_t version_major;  /* major version number */
+    uint16_t version_minor;  /* minor version number */
+    int32_t  thiszone;       /* GMT to local correction */
+    uint32_t sigfigs;        /* accuracy of timestamps */
+    uint32_t snaplen;        /* max length of captured packets, in octets */
+    uint32_t network;        /* data link type */
+} pcap_hdr_t;
+
+typedef struct pcaprec_hdr_s {
+    uint32_t ts_sec;         /* timestamp seconds */
+    uint32_t ts_usec;        /* timestamp microseconds */
+    uint32_t incl_len;       /* number of octets of packet saved in file */
+    uint32_t orig_len;       /* actual length of packet */
+} pcaprec_hdr_t;
+
+void write_pcap_hdr(FILE *a_file) {
+    pcap_hdr_t pcap_hdr;
+    pcap_hdr.magic_number = 0xa1b2c3d4;
+    pcap_hdr.version_major = 2;
+    pcap_hdr.version_minor = 4;
+    pcap_hdr.thiszone = 0;
+    pcap_hdr.sigfigs = 0;
+    pcap_hdr.snaplen = 65535;
+    pcap_hdr.network = 147;
+    
+    fwrite(&pcap_hdr, sizeof(pcap_hdr), 1, a_file);
+}
+
+void write_pcap_pkt(FILE *a_file, uint8_t* data, size_t data_len) {
+    struct timeval now;
+    
+    gettimeofday(&now, NULL);
+
+    pcaprec_hdr_t pcaprec_hdr;
+    pcaprec_hdr.ts_sec = now.tv_sec;
+    pcaprec_hdr.ts_usec = now.tv_usec;
+    pcaprec_hdr.incl_len = data_len;
+    pcaprec_hdr.orig_len = data_len;
+    
+    fwrite(&pcaprec_hdr, sizeof(pcaprec_hdr), 1, a_file);
+    fwrite(data, data_len, 1, a_file);
+}
 
 static void packet_process_token(void) {
 	srf_ip_conn_packet_t *packet = (srf_ip_conn_packet_t *)client_sock_received_packet.buf;
@@ -116,6 +162,14 @@ static void packet_process_dmr(void) {
 
 	srf_ip_conn_packet_print_data_dmr_payload(&packet->data_dmr);
 	client_got_valid_packet();
+    
+    if (output_file) {
+        write_pcap_pkt(
+            output_file,
+            (packet->data_dmr).data,
+            sizeof((packet->data_dmr).data)
+        );
+    }
 }
 
 static void packet_process_dstar(void) {
@@ -157,8 +211,8 @@ flag_t packet_is_header_valid(void) {
 
 void packet_process(void) {
 	srf_ip_conn_packet_header_t *header = (srf_ip_conn_packet_header_t *)client_sock_received_packet.buf;
-
-	switch (header->version) {
+    
+    switch (header->version) {
 		case 0:
 			switch (header->packet_type) {
 				case SRF_IP_CONN_PACKET_TYPE_TOKEN:

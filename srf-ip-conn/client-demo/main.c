@@ -48,8 +48,11 @@ int main(int argc, char **argv) {
     
 	printf("SharkRF IP connector protocol test client application\n");
 
-    while ((c = getopt(argc, argv, "p:P:")) != -1) {
+    while ((c = getopt(argc, argv, "o:p:P:")) != -1) {
         switch (c) {
+            case 'o':
+                output_file = fopen(optarg, "wb");
+                break;
             case 'p':
                 strncpy(client_password, optarg, SRF_IP_CONN_MAX_PASSWORD_LENGTH);
                 break;
@@ -99,6 +102,9 @@ int main(int argc, char **argv) {
 	if (!client_sock_connect(host, server_port, CONFIG_IPV4_ONLY))
 		return 1;
 
+    if (output_file) {
+        write_pcap_hdr(output_file);
+    }
 	// Setting up a signal handler to catch a SIGINT (CTRL+C) keypress.
 	sighandler.sa_handler = main_sigint_handler;
 	sigemptyset(&sighandler.sa_mask);
@@ -122,6 +128,10 @@ int main(int argc, char **argv) {
 	if (client_state == CLIENT_STATE_CONNECTED)
 		client_send_close();
 	client_sock_deinit();
+    
+    if (output_file != 0) {
+        fclose(output_file);
+    }
 
 	return 0;
 }
