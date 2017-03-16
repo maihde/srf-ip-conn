@@ -131,6 +131,7 @@ int main(int argc, char **argv) {
     
     if (output_file != 0) {
         fclose(output_file);
+        output_file = 0;
     }
 
 	return 0;

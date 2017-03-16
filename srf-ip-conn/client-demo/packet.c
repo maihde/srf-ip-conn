@@ -74,6 +74,7 @@ void write_pcap_pkt(FILE *a_file, uint8_t* data, size_t data_len) {
     
     fwrite(&pcaprec_hdr, sizeof(pcaprec_hdr), 1, a_file);
     fwrite(data, data_len, 1, a_file);
+    fflush(a_file);
 }
 
 static void packet_process_token(void) {
@@ -186,6 +187,13 @@ static void packet_process_dstar(void) {
 
 	srf_ip_conn_packet_print_data_dstar_payload(&packet->data_dstar);
 	client_got_valid_packet();
+        if (output_file) {
+            write_pcap_pkt(
+                output_file,
+                (uint8_t*)(packet->data_dstar).storage.data,
+                sizeof((packet->data_dstar).storage.data)
+            );
+	}
 }
 
 static void packet_process_c4fm(void) {
